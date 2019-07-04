@@ -2,9 +2,12 @@ package com.uzhizhe.hummingbird.logger;
 
 import com.alibaba.fastjson.JSON;
 import com.uzhizhe.hummingbird.logger.annotations.SysLogger;
+import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,7 @@ import java.util.List;
  */
 @Component
 @Aspect
+@Slf4j
 public class SysLoggerAspect {
 
     @Autowired
@@ -31,16 +35,28 @@ public class SysLoggerAspect {
     public void logPointCut() {}
 
     @Around("logPointCut()")
-    public Object before(ProceedingJoinPoint point) throws Throwable{
+    public Object around(ProceedingJoinPoint point) throws Throwable{
         long beginTime = System.currentTimeMillis();
         Object result = point.proceed();
-        point.proceed();
         long time = System.currentTimeMillis() - beginTime;
         try {
             saveLoger(point, time);
         } catch (Exception e) {
         }
         return result;
+    }
+
+    @Before("logPointCut()")
+    public void before(JoinPoint joinPoint) throws Throwable{
+        try {
+            Object[] args = joinPoint.getArgs();
+            log.info("args:{}", JSON.toJSONString(args));
+        } catch (Exception e) {
+            String s = joinPoint.toString();
+            log.info("joinPoint toString:{}", s);
+        }
+
+
     }
 
     private void saveLoger(ProceedingJoinPoint joinPoint, long time) {
@@ -62,6 +78,7 @@ public class SysLoggerAspect {
         sysLogBO.setMethodName(methodName);
         //请求的参数
         Object[] args = joinPoint.getArgs();
+
         try{
             List<String> list = new ArrayList<String>();
             for (Object o : args) {

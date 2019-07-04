@@ -9,9 +9,11 @@ import org.junit.Test;
  */
 public class AopTest {
 
-    
+
     @Test
     public void test() {
+
+
         IHello hello = (IHello) new HelloProxy().bind(new Hello());
         hello.sayHello();
 
