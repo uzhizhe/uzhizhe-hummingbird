@@ -49,7 +49,7 @@ public class LeetCode125 {
                     j--;
                 }
             }
-            //System.out.println(s.charAt(i) + " : " + s.charAt(j));
+            System.out.println(s.charAt(i) + " : " + s.charAt(j));
 
             if (Character.toLowerCase(s.charAt(i)) != Character.toLowerCase(s.charAt(j))) {
                 return false;
